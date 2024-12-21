@@ -1,0 +1,55 @@
+---
+# Basic behavior types
+wander:
+  description: "Simple wandering behavior with occasional stops"
+  parameters:
+    min_wander_time: 5.0
+    max_wander_time: 15.0
+    min_idle_time: 2.0
+    max_idle_time: 8.0
+    speed: 2.0
+  transitions:
+    - from: idle
+      to: wandering
+      condition: "idle_time > max_idle_time"
+    - from: wandering
+      to: idle
+      condition: "wander_time > max_wander_time"
+
+hunt:
+  description: "Aggressive hunting behavior with target tracking"
+  parameters:
+    detection_range: 100.0
+    attack_range: 2.0
+    pursuit_speed: 4.0
+    attack_cooldown: 1.5
+  transitions:
+    - from: idle
+      to: pursuing
+      condition: "target_detected and distance < detection_range"
+    - from: pursuing
+      to: attacking
+      condition: "distance < attack_range"
+    - from: pursuing
+      to: idle
+      condition: "distance > detection_range * 1.5"
+    - from: attacking
+      to: pursuing
+      condition: "distance > attack_range"
+
+survive:
+  description: "Self-preservation behavior"
+  parameters:
+    health_threshold: 0.3
+    healing_threshold: 0.7
+    flee_speed: 5.0
+  transitions:
+    - from: any
+      to: fleeing
+      condition: "health < health_threshold"
+    - from: fleeing
+      to: healing
+      condition: "health < healing_threshold and has_healing_items"
+    - from: healing
+      to: idle
+      condition: "health > healing_threshold"

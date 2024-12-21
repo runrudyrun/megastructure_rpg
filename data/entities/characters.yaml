@@ -1,0 +1,54 @@
+---
+# Base character template that others can inherit from
+base_character:
+  components:
+    Position:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    Physical:
+      size: 1.0
+      solid: true
+      blocking: true
+    Health:
+      current: 100.0
+      maximum: 100.0
+      regeneration: 0.1
+
+# A basic NPC template
+wanderer:
+  inherit: base_character
+  components:
+    AI:
+      behavior_type: wander
+      state:
+        idle_time: 0.0
+        wander_radius: 50.0
+      goals:
+        explore: 0.8
+        survive: 0.6
+    Inventory:
+      capacity: 50.0
+      
+# A more complex NPC template
+silicon_creature:
+  inherit: base_character
+  components:
+    Health:
+      current: 200.0
+      maximum: 200.0
+      regeneration: 0.2
+    AI:
+      behavior_type: hunt
+      state:
+        detection_range: 100.0
+        aggression_level: 0.7
+      goals:
+        hunt: 0.9
+        explore: 0.4
+        survive: 0.8
+    Physical:
+      size: 1.5
+      blocking: true
+    Inventory:
+      capacity: 100.0
