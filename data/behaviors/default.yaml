@@ -1,0 +1,60 @@
+---
+# Basic NPC behavior types
+guard:
+  description: "Guard behavior that patrols and investigates threats"
+  parameters:
+    max_idle_time: 2.0
+    max_wander_time: 5.0
+    speed: 2.0
+    detection_range: 5.0
+    attack_range: 1.5
+    attack_cooldown: 1.0
+  transitions:
+    - from: idle
+      to: wandering
+      condition: "idle_time > max_idle_time"
+    - from: wandering
+      to: idle
+      condition: "wander_time > max_wander_time"
+    - from: idle
+      to: pursuing
+      condition: "target_detected and distance < detection_range"
+    - from: pursuing
+      to: attacking
+      condition: "distance < attack_range"
+    - from: pursuing
+      to: idle
+      condition: "distance > detection_range * 1.5"
+    - from: attacking
+      to: pursuing
+      condition: "distance > attack_range"
+
+merchant:
+  description: "Merchant behavior that trades and moves between locations"
+  parameters:
+    max_idle_time: 3.0
+    max_wander_time: 4.0
+    speed: 1.5
+    detection_range: 3.0
+  transitions:
+    - from: idle
+      to: wandering
+      condition: "idle_time > max_idle_time"
+    - from: wandering
+      to: idle
+      condition: "wander_time > max_wander_time"
+
+wander:
+  description: "Simple wandering behavior"
+  parameters:
+    max_idle_time: 2.0
+    max_wander_time: 5.0
+    speed: 1.0
+    detection_range: 4.0
+  transitions:
+    - from: idle
+      to: wandering
+      condition: "idle_time > max_idle_time"
+    - from: wandering
+      to: idle
+      condition: "wander_time > max_wander_time"
