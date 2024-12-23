@@ -120,6 +120,25 @@ class TileMap:
         
         return room
     
+    def add_room(self, room: Room) -> None:
+        """Add a room to the tilemap, including walls and floor."""
+        # Set walls first
+        for wall_y in range(room.y - 1, room.y + room.height + 1):
+            self.set_tile(room.x - 1, wall_y, TileType.WALL)
+            self.set_tile(room.x + room.width, wall_y, TileType.WALL)
+        for wall_x in range(room.x - 1, room.x + room.width + 1):
+            self.set_tile(wall_x, room.y - 1, TileType.WALL)
+            self.set_tile(wall_x, room.y + room.height, TileType.WALL)
+        
+        # Then set floor tiles
+        for floor_y in range(room.y, room.y + room.height):
+            for floor_x in range(room.x, room.x + room.width):
+                self.set_tile(floor_x, floor_y, TileType.FLOOR)
+        
+        # Add room to tilemap
+        self.rooms[self.next_room_id] = room
+        self.next_room_id += 1
+    
     def add_door(self, x: int, y: int) -> bool:
         """Add a door at the specified position."""
         if not self.is_valid_position(x, y):
@@ -144,14 +163,14 @@ class TileMap:
         room.features[feature_name].append((x, y))
         return True
     
-    def connect_rooms(self, room1: Room, room2: Room) -> bool:
-        """Create a connection between two rooms."""
-        if room1.id == room2.id:
-            return False
+    def connect_rooms(self, room1: Room, room2: Room) -> None:
+        """Connect two rooms."""
+        if room1.id not in self.rooms or room2.id not in self.rooms:
+            return
             
+        # Add bidirectional connections
         room1.connections.add(room2.id)
         room2.connections.add(room1.id)
-        return True
     
     def get_room_at(self, x: int, y: int) -> Optional[Room]:
         """Get the room at the specified position."""

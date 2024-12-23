@@ -3,6 +3,10 @@ import pygame
 import sys
 import os
 from typing import Dict, List, Optional, Tuple
+import pytest
+from engine.physics.movement import MovementSystem, MovementState, MovementStats
+from engine.physics.collision import CollisionSystem
+from engine.world.tilemap import TileMap, TileType
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -186,6 +190,81 @@ class PhysicsVisualizer:
                         self.tile_size
                     )
                     pygame.draw.rect(self.screen, (255, 255, 0), rect, 2)
+
+
+class TestPhysics:
+    @pytest.fixture
+    def setup(self):
+        tilemap = TileMap(10, 10)
+        collision_system = CollisionSystem(tilemap)
+        movement_system = MovementSystem(collision_system)
+        entity = Entity()
+        movement_system.register_entity(entity.id, (5, 5))
+        return movement_system, collision_system, entity
+    
+    def test_basic_movement(self, setup):
+        movement_system, collision_system, entity = setup
+        # Test valid move
+        dx, dy = 1, 0  # Move right
+        assert movement_system.request_move(entity.id, dx, dy)
+        movement_system.execute_turn()
+        assert movement_system.get_position(entity.id) == (6, 5)
+        
+        # Test invalid move (too far)
+        dx, dy = 3, 3  # Try to move too far
+        assert not movement_system.request_move(entity.id, dx, dy)
+    
+    def test_collision(self, setup):
+        movement_system, collision_system, entity = setup
+        # Create wall
+        collision_system.tilemap.set_tile(6, 5, TileType.WALL)
+        
+        # Test entity collision with wall
+        dx, dy = 1, 0  # Try to move into wall
+        assert not movement_system.request_move(entity.id, dx, dy)
+        
+    def test_diagonal_movement(self, setup):
+        movement_system, collision_system, entity = setup
+        stats = MovementStats(movement_points=2, diagonal_movement=True)
+        movement_system.register_entity(entity.id, (5, 5), stats)
+        
+        # Test diagonal move
+        dx, dy = 1, 1  # Move diagonally
+        assert movement_system.request_move(entity.id, dx, dy)
+        movement_system.execute_turn()
+        assert movement_system.get_position(entity.id) == (6, 6)
+    
+    def test_boundary_collision(self, setup):
+        """Test collision detection at map boundaries."""
+        movement_system, collision_system, entity = setup
+        
+        # Try to move beyond map boundaries
+        original_pos = movement_system.get_position(entity.id)
+        movement_system.request_move(entity.id, -1, 0)  # Try moving left off map
+        assert movement_system.get_position(entity.id) == original_pos
+        
+        # Try moving to map edge
+        movement_system.request_move(entity.id, collision_system.tilemap.width, collision_system.tilemap.height)
+        new_pos = movement_system.get_position(entity.id)
+        assert new_pos[0] < collision_system.tilemap.width and new_pos[1] < collision_system.tilemap.height
+
+    def test_movement_interruption(self, setup):
+        """Test handling of interrupted movement."""
+        movement_system, collision_system, entity = setup
+        
+        # Simulate obstacle appearing during movement
+        start_pos = movement_system.get_position(entity.id)
+        
+        # Request move right by 2 tiles
+        movement_system.request_move(entity.id, 2, 0)
+        
+        # Place obstacle in path
+        mid_x = start_pos[0] + 1
+        collision_system.tilemap.set_tile(mid_x, start_pos[1], TileType.WALL)
+        
+        # Verify movement stops at obstacle
+        final_pos = movement_system.get_position(entity.id)
+        assert final_pos[0] < mid_x
 
 
 if __name__ == "__main__":

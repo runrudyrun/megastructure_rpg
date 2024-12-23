@@ -7,6 +7,7 @@ DARK_GRAY = (30, 30, 40)
 GRAY = (60, 60, 80)
 LIGHT_GRAY = (120, 120, 160)
 WHITE = (200, 200, 255)  # Slightly blue-tinted
+RED = (255, 0, 0)  # Pure red for errors
 
 # Neon accent colors
 NEON_CYAN = (0, 255, 255)

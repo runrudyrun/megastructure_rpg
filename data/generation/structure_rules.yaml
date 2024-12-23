@@ -2,62 +2,47 @@
 # Basic room types and their generation rules
 room_types:
   corridor:
-    min_size: [5, 5]
-    max_size: [15, 8]
-    features:
-      - doors: {min: 1, max: 4}
-      - lights: {min: 2, max: 6}
-      - terminals: {min: 0, max: 2}
+    min_size: [4, 3]
+    max_size: [8, 4]
+    min_door_width: 2
     
   hall:
-    min_size: [10, 10]
-    max_size: [30, 30]
-    features:
-      - pillars: {min: 4, max: 12}
-      - lights: {min: 4, max: 12}
-      - terminals: {min: 1, max: 4}
+    min_size: [6, 6]
+    max_size: [10, 10]
+    min_door_width: 3
     
   laboratory:
-    min_size: [15, 15]
-    max_size: [25, 25]
-    features:
-      - terminals: {min: 2, max: 6}
-      - containers: {min: 3, max: 8}
-      - machines: {min: 2, max: 5}
+    min_size: [8, 8]
+    max_size: [12, 12]
+    min_door_width: 2
     
   maintenance:
-    min_size: [8, 8]
-    max_size: [20, 20]
-    features:
-      - machines: {min: 1, max: 4}
-      - containers: {min: 2, max: 6}
-      - terminals: {min: 1, max: 3}
+    min_size: [5, 5]
+    max_size: [8, 8]
+    min_door_width: 2
 
-# Connection rules between room types
 connection_rules:
   corridor:
-    - corridor: 0.7
-    - hall: 0.4
-    - laboratory: 0.2
-    - maintenance: 0.3
-    
+    corridor: 0.3
+    hall: 0.8
+    laboratory: 0.6
+    maintenance: 0.7
+  
   hall:
-    - corridor: 0.8
-    - hall: 0.3
-    - laboratory: 0.4
-    - maintenance: 0.3
-    
+    hall: 0.4
+    laboratory: 0.7
+    maintenance: 0.6
+  
   laboratory:
-    - corridor: 0.6
-    - hall: 0.4
-    - laboratory: 0.2
-    - maintenance: 0.5
-    
+    laboratory: 0.3
+    maintenance: 0.5
+  
   maintenance:
-    - corridor: 0.7
-    - hall: 0.3
-    - laboratory: 0.3
-    - maintenance: 0.2
+    maintenance: 0.4
+
+validation_rules:
+  min_connections_per_room: 2
+  max_connection_attempts: 50
 
 # Theme definitions for different sectors
 themes:
